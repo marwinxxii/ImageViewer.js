@@ -17,40 +17,50 @@
         </div>
         <div id="gallery"></div>
         <script>
-            var gallery, images = [], index = 0;
+            var gallery = {
+                index: null,
+                element: null,
+                size: 0
+            };
+
             function onFilesSelected()
             {
-                var files = this.files;
-                if (!files || files.length == 0) return;
-                for (var i = 0; i < files.length; i++)
+                if (!this.files || this.files.length == 0) return;
+                var reader;
+                for (var i = 0; i < this.files.length; i++)
                 {
-                    var reader = new FileReader();
-                    reader.onload = function(e)
-                    {
-                        images.push(e.target.result);
-                        if (images.length == files.length)
+                    reader = new FileReader();
+                    reader.onload = (function(index){
+                        return function(e)
                         {
-                            showNextImage();
+                            var img = document.createElement('img');
+                            if (index != 0) {
+                                img.style.display = 'none';
+                            }
+                            img.src = e.target.result;
+                            gallery.element.appendChild(img);
                         }
-                    };
-                    reader.readAsDataURL(files[i]);
+                    })(i);
+                    reader.readAsDataURL(this.files[i]);
                 }
+                gallery.size = this.files.length;
+                gallery.element.addEventListener('click',
+                    showNextImage, false);
+                gallery.index = 0;
             }
 
-            function showNextImage()
+            function showNextImage(e)
             {
-                var img = document.createElement('img');
-                img.src = images[index];
-                gallery.innerHTML = '';
-                gallery.appendChild(img);
-                index = index == images.length ? 0 : index + 1;
+                e.target.style.display = 'none';
+                gallery.index = (gallery.index + 1) % gallery.size;
+                var imgs = gallery.element.getElementsByTagName('img');
+                imgs[gallery.index].style.display = 'block';
             }
 
             function init()
             {
-                document.getElementById('files').onchange = onFilesSelected;
-                gallery = document.getElementById('gallery');
-                gallery.onclick = showNextImage;
+                document.getElementById('files').addEventListener('change', onFilesSelected, false);
+                gallery.element = document.getElementById('gallery');
             }
 
             init();
