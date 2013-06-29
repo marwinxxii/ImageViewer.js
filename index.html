@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="utf-8">
+        <title>Gallery</title>
+        <style>
+            img
+            {
+                max-width: 100%;
+                max-height: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="control">
+            <input id="files" type="file" multiple>
+        </div>
+        <div id="gallery"></div>
+        <script>
+            var gallery, images = [], index = 0;
+            function onFilesSelected()
+            {
+                var files = this.files;
+                if (!files || files.length == 0) return;
+                for (var i = 0; i < files.length; i++)
+                {
+                    var reader = new FileReader();
+                    reader.onload = function(e)
+                    {
+                        images.push(e.target.result);
+                        if (images.length == files.length)
+                        {
+                            showNextImage();
+                        }
+                    };
+                    reader.readAsDataURL(files[i]);
+                }
+            }
+
+            function showNextImage()
+            {
+                var img = document.createElement('img');
+                img.src = images[index];
+                gallery.innerHTML = '';
+                gallery.appendChild(img);
+                index = index == images.length ? 0 : index + 1;
+            }
+
+            function init()
+            {
+                document.getElementById('files').onchange = onFilesSelected;
+                gallery = document.getElementById('gallery');
+                gallery.onclick = showNextImage;
+            }
+
+            init();
+        </script>
+    </body>
+</html>
