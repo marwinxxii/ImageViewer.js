@@ -59,12 +59,22 @@
                 gallery.index = 0;
             }
 
-            function showNextImage(e)
+            function showNextImage()
             {
-                if (e.target.tagName.toLowerCase() != 'img') return;
-                e.target.className = 'hidden';
-                gallery.index = (gallery.index + 1) % gallery.size;
                 var imgs = gallery.element.getElementsByTagName('img');
+                imgs[gallery.index].className = 'hidden';
+                gallery.index = (gallery.index + 1) % gallery.size;
+                imgs[gallery.index].className = '';
+            }
+
+            function showPreviousImage()
+            {
+                var imgs = gallery.element.getElementsByTagName('img');
+                imgs[gallery.index].className = 'hidden';
+                if (gallery.index == 0)
+                    gallery.index = gallery.size - 1;
+                else
+                    gallery.index -= 1;
                 imgs[gallery.index].className = '';
             }
 
@@ -84,12 +94,26 @@
                 requestFullScreen(gallery.element);
             }
 
+            function onKeyPress(e)
+            {
+                var SPACE = 32, ARROW_RIGHT = 39, ARROW_LEFT = 37;
+                if (e.keyCode == SPACE || e.keyCode == ARROW_RIGHT)
+                {
+                    showNextImage(e);
+                }
+                else if (e.keyCode == ARROW_LEFT)
+                {
+                    showPreviousImage();
+                }
+            }
+
             function init()
             {
                 document.getElementById('files').addEventListener('change', onFilesSelected, false);
                 gallery.element = document.getElementById('gallery');
                 document.getElementById('fullscreen').addEventListener('click',
                     startFullscreen, false);
+                document.addEventListener('keypress', onKeyPress, false);
             }
 
             init();
