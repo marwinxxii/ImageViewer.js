@@ -9,11 +9,16 @@
                 max-width: 100%;
                 max-height: 100%;
             }
+            #gallery
+            {
+                text-align: center;
+            }
         </style>
     </head>
     <body>
         <div id="control">
             <input id="files" type="file" multiple>
+            <input id="fullscreen" type="button" value="Full screen">
         </div>
         <div id="gallery"></div>
         <script>
@@ -26,6 +31,7 @@
             function onFilesSelected()
             {
                 if (!this.files || this.files.length == 0) return;
+                gallery.element.innerHTML = '';
                 var reader;
                 for (var i = 0; i < this.files.length; i++)
                 {
@@ -57,10 +63,28 @@
                 imgs[gallery.index].style.display = 'block';
             }
 
+            function requestFullScreen(elem)
+            {
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.mozRequestFullScreen) {
+                    elem.mozRequestFullScreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                }
+            }
+
+            function startFullscreen()
+            {
+                requestFullScreen(gallery.element);
+            }
+
             function init()
             {
                 document.getElementById('files').addEventListener('change', onFilesSelected, false);
                 gallery.element = document.getElementById('gallery');
+                document.getElementById('fullscreen').addEventListener('click',
+                    startFullscreen, false);
             }
 
             init();
