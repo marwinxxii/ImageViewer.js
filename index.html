@@ -9,7 +9,7 @@
                 max-width: 100%;
                 max-height: 100%;
             }
-            #gallery
+            #imageviewer
             {
                 text-align: center;
             }
@@ -24,9 +24,9 @@
             <input id="files" type="file" multiple>
             <input id="fullscreen" type="button" value="Full screen">
         </div>
-        <div id="gallery"></div>
+        <div id="imageviewer"></div>
         <script>
-            var gallery = {
+            var ImageViewer = {
                 index: null,
                 element: null,
                 size: 0
@@ -35,7 +35,7 @@
             function onFilesSelected()
             {
                 if (!this.files || this.files.length == 0) return;
-                gallery.element.innerHTML = '';
+                ImageViewer.element.innerHTML = '';
                 var reader;
                 for (var i = 0; i < this.files.length; i++)
                 {
@@ -48,34 +48,34 @@
                                 img.className = 'hidden';
                             }
                             img.src = e.target.result;
-                            gallery.element.appendChild(img);
+                            ImageViewer.element.appendChild(img);
                         }
                     })(i);
                     reader.readAsDataURL(this.files[i]);
                 }
-                gallery.size = this.files.length;
-                gallery.element.addEventListener('click',
+                ImageViewer.size = this.files.length;
+                ImageViewer.element.addEventListener('click',
                     showNextImage, false);
-                gallery.index = 0;
+                ImageViewer.index = 0;
             }
 
             function showNextImage()
             {
-                var imgs = gallery.element.getElementsByTagName('img');
-                imgs[gallery.index].className = 'hidden';
-                gallery.index = (gallery.index + 1) % gallery.size;
-                imgs[gallery.index].className = '';
+                var imgs = ImageViewer.element.getElementsByTagName('img');
+                imgs[ImageViewer.index].className = 'hidden';
+                ImageViewer.index = (ImageViewer.index + 1) % ImageViewer.size;
+                imgs[ImageViewer.index].className = '';
             }
 
             function showPreviousImage()
             {
-                var imgs = gallery.element.getElementsByTagName('img');
-                imgs[gallery.index].className = 'hidden';
-                if (gallery.index == 0)
-                    gallery.index = gallery.size - 1;
+                var imgs = ImageViewer.element.getElementsByTagName('img');
+                imgs[ImageViewer.index].className = 'hidden';
+                if (ImageViewer.index == 0)
+                    ImageViewer.index = ImageViewer.size - 1;
                 else
-                    gallery.index -= 1;
-                imgs[gallery.index].className = '';
+                    ImageViewer.index -= 1;
+                imgs[ImageViewer.index].className = '';
             }
 
             function requestFullScreen(elem)
@@ -91,7 +91,7 @@
 
             function startFullscreen()
             {
-                requestFullScreen(gallery.element);
+                requestFullScreen(ImageViewer.element);
             }
 
             function onKeyPress(e)
@@ -110,7 +110,7 @@
             function init()
             {
                 document.getElementById('files').addEventListener('change', onFilesSelected, false);
-                gallery.element = document.getElementById('gallery');
+                ImageViewer.element = document.getElementById('imageviewer');
                 document.getElementById('fullscreen').addEventListener('click',
                     startFullscreen, false);
                 document.addEventListener('keypress', onKeyPress, false);
