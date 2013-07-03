@@ -27,7 +27,11 @@
         </div>
         <div id="imageviewer"></div>
         <script>
-            init();
+            new ImageViewer({
+                imageholder: 'imageviewer',
+                fullscreenActivator: 'fullscreen',
+                files: 'files'
+            });
         </script>
     </body>
 </html>
