@@ -23,15 +23,16 @@ var ImageViewer;
         index: function(viewer) {
             var element = document.getElementById('index');
             viewer.addEventListener('imageShown', function(e) {
-                element.style.display = 'block';
+                element.className = '';
                 element.innerHTML = (e.detail.index + 1) + '/' +
                     e.detail.viewer.count;
             });
         },
         title: function(viewer) {
-            var element = document.getElementById('title');
+            var element = document.getElementById('title'),
+                container = document.getElementById('title-container');
             viewer.addEventListener('imageShown', function(e) {
-                element.style.display = 'block';
+                container.className = '';
                 element.innerHTML = e.detail.file.name;
             });
         }

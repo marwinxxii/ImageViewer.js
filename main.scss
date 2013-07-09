@@ -44,7 +44,6 @@ img {
 
 #index {
     @extend .widget;
-    display: none;
     position: absolute;
     top: $margin;
     left: 50%;
@@ -63,11 +62,22 @@ img {
 :-webkit-full-screen #index { @include fullscreen-index; }
 :-moz-full-screen #index { @include fullscreen-index; }
 
-#title {
-    @extend .widget;
-    display: none;
+#title-container {
+    width: 100%;
+    text-align: center;
     position: fixed;
     bottom: 0;
-    width: 100%;
+    background-color: transparent;
+}
+#title {
+    @extend .widget;
     font-family: monospace;
 }
+
+@mixin fs-title {
+    display: none;
+}
+
+:fullscreen #title-container { @include fs-title; }
+:-webkit-full-screen #title-container { @include fs-title; }
+:-moz-full-screen #title-container { @include fs-title; }

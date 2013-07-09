@@ -12,8 +12,10 @@
             <input id="fullscreen" type="button" value="Full screen">
         </div>
         <div id="imageviewer">
-            <div id="index"></div>
-            <div id="title"></div>
+            <div id="title-container" class="hidden">
+                <span id="title"></span>
+            </div>
+            <div id="index" class="hidden"></div>
         </div>
         <script>
             var imageViewer = new ImageViewer({
