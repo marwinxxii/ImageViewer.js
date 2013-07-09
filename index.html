@@ -12,10 +12,37 @@
             #imageviewer
             {
                 text-align: center;
+                position: relative;
             }
             .hidden
             {
                 display: none;
+            }
+            #index
+            {
+                display: none;
+                position: absolute;
+                top: 0;
+                z-index: 100;
+                padding: 2px 5px 2px 5px;
+                color: #000;
+                background-color: #fff;
+                font-family: monospace;
+            }
+            :fullscreen #index
+            {
+                background-color: #000;
+                color: #0f0;
+            }
+            :-webkit-full-screen #index
+            {
+                background-color: #000;
+                color: #0f0;
+            }
+            :-moz-full-screen #index
+            {
+                background-color: #000;
+                color: #0f0;
             }
         </style>
         <script src="main.js"></script>
@@ -25,12 +52,15 @@
             <input id="files" type="file" multiple>
             <input id="fullscreen" type="button" value="Full screen">
         </div>
-        <div id="imageviewer"></div>
+        <div id="imageviewer">
+            <div id="index"></div>
+        </div>
         <script>
-            new ImageViewer({
+            var imageViewer = new ImageViewer({
                 imageholder: 'imageviewer',
                 fullscreener: 'fullscreen',
-                files: 'files'
+                files: 'files',
+                plugins: ['index']
             });
         </script>
     </body>
