@@ -1,5 +1,9 @@
 {
   "undef": true,
   "unused": true,
-  "browser": true
+  "browser": true,
+  "maxlen": 80,
+  "globals": {
+    "CustomEvent": true
+  }
 }

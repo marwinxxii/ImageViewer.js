@@ -103,9 +103,7 @@ var ImageViewer;
             var files = evt.target.files;
             if (!files || files.length === 0) return;
             this._setStartValues();
-            var i = 0,
-                child,
-                childrenCount = this._element.children.length;
+            var i = 0, child;
             while (i < this._element.children.length) {
                 child = this._element.children[i];
                 if (child.nodeName === 'IMG') {

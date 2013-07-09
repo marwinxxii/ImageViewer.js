@@ -1,4 +1,4 @@
 all: jshint
 
 jshint:
-	jshint main.js
+	jshint imageviewer.js
