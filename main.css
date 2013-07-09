@@ -1,0 +1,41 @@
+img
+{
+    max-width: 100%;
+    max-height: 100%;
+}
+#imageviewer
+{
+    text-align: center;
+    position: relative;
+}
+.hidden
+{
+    display: none;
+}
+
+#index
+{
+    display: none;
+    position: absolute;
+    top: 0;
+    z-index: 100;
+    padding: 2px 5px 2px 5px;
+    color: #000;
+    background-color: #fff;
+    font-family: monospace;
+}
+:fullscreen #index
+{
+    background-color: #000;
+    color: #0f0;
+}
+:-webkit-full-screen #index
+{
+    background-color: #000;
+    color: #0f0;
+}
+:-moz-full-screen #index
+{
+    background-color: #000;
+    color: #0f0;
+}
