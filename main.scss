@@ -26,6 +26,13 @@ img {
     padding: 0;
 }
 
+.widget {
+    background-color: #fff;
+    color: #000;
+    padding: 2px 5px 2px 5px;
+    z-index: 100;
+}
+
 /* should be separate, can't use in list */
 #imageviewer:fullscreen { @include fs-viewer; }
 #imageviewer:-webkit-full-screen { @include fs-viewer; }
@@ -36,15 +43,12 @@ img {
 }
 
 #index {
+    @extend .widget;
     display: none;
     position: absolute;
     top: $margin;
     left: 50%;
     margin-left: -10px;
-    z-index: 100;
-    padding: 2px 5px 2px 5px;
-    color: #000;
-    background-color: #fff;
     font-family: monospace;
 }
 
@@ -58,3 +62,12 @@ img {
 :fullscreen #index { @include fullscreen-index; }
 :-webkit-full-screen #index { @include fullscreen-index; }
 :-moz-full-screen #index { @include fullscreen-index; }
+
+#title {
+    @extend .widget;
+    display: none;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    font-family: monospace;
+}

@@ -27,6 +27,13 @@ var ImageViewer;
                 element.innerHTML = (e.detail.index + 1) + '/' +
                     e.detail.viewer.count;
             });
+        },
+        title: function(viewer) {
+            var element = document.getElementById('title');
+            viewer.addEventListener('imageShown', function(e) {
+                element.style.display = 'block';
+                element.innerHTML = e.detail.file.name;
+            });
         }
     };
 
