@@ -4,12 +4,17 @@
         <meta charset="utf-8">
         <title>Gallery</title>
         <link rel="stylesheet" href="main.css">
+        <link href="//yui.yahooapis.com/pure/0.2.0/buttons-min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
         <script src="imageviewer.js"></script>
     </head>
     <body>
         <div id="control">
-            <input id="files" type="file" multiple>
-            <input id="fullscreen" type="button" value="Full screen">
+            <button class="pure-button hidden" id="files-holder"><i
+                class="icon-folder-open"></i> Open images<input id="files" type="file" multiple accept="image/*"
+                title="Select files to view"></button>
+            <button class="pure-button" id="fullscreen"><i
+                class="icon-fullscreen"></i> Fullscreen</button>
         </div>
         <div id="imageviewer">
             <div id="title-container" class="hidden">
@@ -22,6 +27,7 @@
                 imageholder: 'imageviewer',
                 fullscreener: 'fullscreen',
                 files: 'files',
+                filesPlaceholder: 'files-holder',
                 plugins: ['index', 'title']
             });
         </script>

@@ -43,6 +43,10 @@ img {
     display: none;
 }
 
+.pointer {
+    cursor: pointer;
+}
+
 #index {
     @extend .widget;
     position: absolute;

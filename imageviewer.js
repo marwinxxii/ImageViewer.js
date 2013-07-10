@@ -55,8 +55,18 @@ var ImageViewer;
         this._reader = new FileReader();
         this._reader.onload = this._onImageRead.bind(this);
 
-        document.getElementById(args.files).addEventListener('change',
+        var files = document.getElementById(args.files);
+        files.addEventListener('change',
             this._onFilesSelected.bind(this), false);
+
+        if (args.filesPlaceholder) {
+            var holder = document.getElementById(args.filesPlaceholder);
+            holder.className = holder.className.replace('hidden', '');
+            files.className = 'hidden';
+            holder.addEventListener('click',
+                function(e) { files.click(); },
+                false);
+        }
 
         if (args.fullscreener && fullscreenSupported()) {
             document.getElementById(args.fullscreener).addEventListener(
@@ -126,6 +136,7 @@ var ImageViewer;
                 file = files[i];
                 this._files.push(file);
             }
+            this._element.className = 'pointer';
 
             this._dispatchEvent('filesSelected');
             this.showImage(0);
