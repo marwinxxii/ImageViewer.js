@@ -63,7 +63,7 @@ var ImageViewer;
                 'click', this.startFullscreen.bind(this), false);
         }
 
-        document.addEventListener('keypress', this._onKeyPress.bind(this),
+        document.addEventListener('keydown', this._onKeyPress.bind(this),
             false);
 
         this._element.addEventListener('click',
