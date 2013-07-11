@@ -35,6 +35,30 @@ var ImageViewer;
                 container.className = '';
                 element.innerHTML = e.detail.file.name;
             });
+        },
+        navigation: function(viewer) {
+            var btnPrev = document.getElementById('navigation-prev'),
+                btnNext = document.getElementById('navigation-next');
+            viewer.addEventListener('filesSelected', function(e) {
+                var disabled = e.detail.viewer.count <= 1;
+                btnPrev.disabled = btnNext.disabled = disabled;
+                if (disabled) {
+                    btnPrev.classList.add('pure-button-disabled');
+                    btnNext.classList.add('pure-button-disabled');
+                } else {
+                    btnPrev.classList.remove('pure-button-disabled');
+                    btnNext.classList.remove('pure-button-disabled');
+                }
+            });
+            var onclick = function(e) {
+                if (e.target.id === 'navigation-next') {
+                    viewer.showNext();
+                } else {
+                    viewer.showPrevious();
+                }
+            };
+            btnPrev.addEventListener('click', onclick);
+            btnNext.addEventListener('click', onclick);
         }
     };
 
@@ -64,7 +88,7 @@ var ImageViewer;
             holder.className = holder.className.replace('hidden', '');
             files.className = 'hidden';
             holder.addEventListener('click',
-                function(e) { files.click(); },
+                function() { files.click(); },
                 false);
         }
 
@@ -77,7 +101,7 @@ var ImageViewer;
             false);
 
         this._element.addEventListener('click',
-            this._onShowNext.bind(this), false);
+            this.showNext.bind(this), false);
 
         if (args.plugins) {
             var p, i;
@@ -155,23 +179,23 @@ var ImageViewer;
         _onKeyPress: function(e) {
             if (this._files.length < 1) return;
             if (e.keyCode === SPACE || e.keyCode === ARROW_RIGHT) {
-                this._onShowNext();
+                this.showNext();
             }
             else if (e.keyCode === ARROW_LEFT) {
-                this._onShowPrevious();
+                this.showPrevious();
             }
         },
 
         _onMouseClick: function() {
             if (this._files.length < 1) return;
-            this._onShowNext();
+            this.showNext();
         },
 
-        _onShowNext: function() {
+        showNext: function() {
             this.showImage((this._index + 1) % this._files.length);
         },
 
-        _onShowPrevious: function() {
+        showPrevious: function() {
             var index;
             if (this._index === 0)
                 index = this._files.length - 1;

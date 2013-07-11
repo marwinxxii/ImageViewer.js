@@ -11,15 +11,25 @@
     <body>
         <div id="control">
             <button class="pure-button hidden" id="files-holder"
-                title="Open images to view"><i
+                title="Select images to view"><i
                 class="icon-folder-open"></i><input id="files" type="file" multiple accept="image/*"
-                title="Select files to view"></button>
+                title="Select images to view"></button>
             <button class="pure-button" id="fullscreen"
                 title="Fullscreen mode"><i
                 class="icon-fullscreen"></i></button>
             <button class="pure-button" id="help"
                 title="Use right and left arrows to navigate through images"><i
                 class="icon-keyboard"></i></button>
+            <button class="pure-button pure-button-disabled"
+                disabled
+                id="navigation-prev"
+                title="Previous image"><i
+                    class="icon-chevron-left"></i></button>
+            <button class="pure-button pure-button-disabled"
+                disabled
+                id="navigation-next"
+                title="Next image"><i
+                class="icon-chevron-right"></i></button>
         </div>
         <div id="imageviewer">
             <div id="title-container" class="hidden">
@@ -33,7 +43,7 @@
                 fullscreener: 'fullscreen',
                 files: 'files',
                 filesPlaceholder: 'files-holder',
-                plugins: ['index', 'title']
+                plugins: ['index', 'title', 'navigation']
             });
         </script>
     </body>
