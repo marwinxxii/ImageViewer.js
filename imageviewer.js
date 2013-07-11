@@ -82,16 +82,16 @@ var ImageViewer;
         this._reader = new FileReader();
         this._reader.onload = this._onImageRead.bind(this);
 
-        var files = document.getElementById(args.files);
-        files.addEventListener('change',
+        this._filesElem = document.getElementById(args.files);
+        this._filesElem.addEventListener('change',
             this._onFilesSelected.bind(this), false);
 
         if (args.filesPlaceholder) {
             var holder = document.getElementById(args.filesPlaceholder);
             holder.className = holder.className.replace('hidden', '');
-            files.className = 'hidden';
+            this._filesElem.className = 'hidden';
             holder.addEventListener('click',
-                function() { files.click(); },
+                this.openFileDialog.bind(this),
                 false);
         }
 
@@ -117,8 +117,9 @@ var ImageViewer;
         }
     };
 
-    var SPACE = 32, ARROW_RIGHT = 39, ARROW_LEFT = 37;
-    var EV_PREFIX = 'imageviewer.'
+    var KEY_SPACE = 32, KEY_RIGHT = 39, KEY_LEFT = 37,
+        KEY_O = 79, KEY_F = 70;
+    var EV_PREFIX = 'imageviewer.';
 
     ImageViewer.prototype = {
         EV_IMAGE_SHOWN: 'imageShown',
@@ -139,6 +140,10 @@ var ImageViewer;
 
         addEventListener: function(event, callback) {
             document.addEventListener(EV_PREFIX + event, callback);
+        },
+
+        openFileDialog: function() {
+            this._filesElem.click();
         },
 
         _setStartValues: function() {
@@ -185,11 +190,20 @@ var ImageViewer;
 
         _onKeyPress: function(e) {
             if (this._files.length < 1) return;
-            if (e.keyCode === SPACE || e.keyCode === ARROW_RIGHT) {
-                this.showNext();
-            }
-            else if (e.keyCode === ARROW_LEFT) {
-                this.showPrevious();
+            switch (e.keyCode) {
+                case KEY_SPACE:
+                case KEY_RIGHT:
+                    this.showNext();
+                    break;
+                case KEY_LEFT:
+                    this.showPrevious();
+                    break;
+                case KEY_O:
+                    this.openFileDialog();
+                    break;
+                case KEY_F:
+                    this.startFullscreen();
+                    break;
             }
         },
 
