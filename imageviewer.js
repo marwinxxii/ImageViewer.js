@@ -22,7 +22,7 @@ var ImageViewer;
     var plugins = {
         index: function(viewer) {
             var element = document.getElementById('index');
-            viewer.addEventListener('imageShown', function(e) {
+            viewer.addEventListener(viewer.EV_IMAGE_SHOWN, function(e) {
                 element.className = '';
                 element.innerHTML = (e.detail.index + 1) + '/' +
                     e.detail.viewer.count;
@@ -31,7 +31,7 @@ var ImageViewer;
         title: function(viewer) {
             var element = document.getElementById('title'),
                 container = document.getElementById('title-container');
-            viewer.addEventListener('imageShown', function(e) {
+            viewer.addEventListener(viewer.EV_IMAGE_SHOWN, function(e) {
                 container.className = '';
                 element.innerHTML = e.detail.file.name;
             });
@@ -39,7 +39,7 @@ var ImageViewer;
         navigation: function(viewer) {
             var btnPrev = document.getElementById('navigation-prev'),
                 btnNext = document.getElementById('navigation-next');
-            viewer.addEventListener('filesSelected', function(e) {
+            viewer.addEventListener(viewer.EV_FILES_SELECTED, function(e) {
                 var disabled = e.detail.viewer.count <= 1;
                 btnPrev.disabled = btnNext.disabled = disabled;
                 if (disabled) {
@@ -51,6 +51,9 @@ var ImageViewer;
                 }
             });
             var onclick = function(e) {
+                if (e.target.disabled !== false) {
+                    return;
+                }
                 if (e.target.id === 'navigation-next') {
                     viewer.showNext();
                 } else {
@@ -72,7 +75,7 @@ var ImageViewer;
         this._element = document.getElementById(args.imageholder);
         this._setStartValues();
 
-        Object.defineProperty(this, "count", {
+        Object.defineProperty(this, 'count', {
             get: function() { return this._files.length; }
         });
 
@@ -115,8 +118,12 @@ var ImageViewer;
     };
 
     var SPACE = 32, ARROW_RIGHT = 39, ARROW_LEFT = 37;
+    var EV_PREFIX = 'imageviewer.'
 
     ImageViewer.prototype = {
+        EV_IMAGE_SHOWN: 'imageShown',
+        EV_FILES_SELECTED: 'filesSelected',
+
         showImage: function(index) {
             if (index < 0 || index > this._files.length) return;
             if (index in this._images) {
@@ -131,7 +138,7 @@ var ImageViewer;
         },
 
         addEventListener: function(event, callback) {
-            document.addEventListener(event, callback);
+            document.addEventListener(EV_PREFIX + event, callback);
         },
 
         _setStartValues: function() {
@@ -162,7 +169,7 @@ var ImageViewer;
             }
             this._element.className = 'pointer';
 
-            this._dispatchEvent('filesSelected');
+            this._dispatchEvent(this.EV_FILES_SELECTED);
             this.showImage(0);
         },
 
@@ -215,7 +222,7 @@ var ImageViewer;
             this._images[this._index].className = 'hidden';
             this._index = index;
             this._images[this._index].className = '';
-            this._dispatchEvent('imageShown', {
+            this._dispatchEvent(this.EV_IMAGE_SHOWN, {
                 index: index,
                 file: this._files[index]
             });
@@ -226,6 +233,7 @@ var ImageViewer;
                 detail = {};
             }
             detail.viewer = this;
+            name = EV_PREFIX + name;
             var evt = new CustomEvent(name, {
                 bubbles: false,
                 cancelable: false,
