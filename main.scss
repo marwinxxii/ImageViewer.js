@@ -1,4 +1,5 @@
 $margin: 8px;
+$panel_background: lightgray;
 
 body {
     margin: 0;
@@ -10,7 +11,7 @@ img {
 }
 #control {
     padding: $margin;
-    background: lightgray;
+    background: $panel_background;
 }
 
 #imageviewer {
@@ -86,3 +87,18 @@ img {
 :fullscreen #title-container { @include fs-title; }
 :-webkit-full-screen #title-container { @include fs-title; }
 :-moz-full-screen #title-container { @include fs-title; }
+
+#navigation-panel-wrapper {
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    text-align: center;
+}
+
+#navigation-panel {
+    background-color: $panel_background;
+    border-radius: 5px;
+    position: fixed;
+    bottom: 0;
+    padding: 5px;
+}

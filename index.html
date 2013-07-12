@@ -36,6 +36,24 @@
                 <span id="title"></span>
             </div>
             <div id="index" class="hidden"></div>
+            <div id="navigation-panel-wrapper" class="hidden">
+                <span id="navigation-panel">
+                    <button class="pure-button pure-button-disabled"
+                        disabled
+                        id="navigation-prev-full"
+                        title="Previous image"><i
+                            class="icon-chevron-left"></i></button>
+                    <button class="pure-button pure-button-disabled"
+                        disabled
+                        id="navigation-next-full"
+                        title="Next image"><i
+                        class="icon-chevron-right"></i></button>
+                    <button class="pure-button"
+                        id="navigation-fs-exit"
+                        title="Exit fullscreen mode"><i
+                        class="icon-remove"></i></button>
+                </span>
+            </div>
         </div>
         <script>
             var imageViewer = new ImageViewer({

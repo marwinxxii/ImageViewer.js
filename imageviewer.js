@@ -19,6 +19,16 @@ var ImageViewer;
         }
     }
 
+    function cancelFullscreen() {
+        if(document.cancelFullscreen) {
+            document.cancelFullscreen();
+        } else if(document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if(document.webkitCancelFullScreen) {
+            document.webkitCancelFullScreen();
+        }
+    }
+
     var plugins = {
         index: function(viewer) {
             var element = document.getElementById('index');
@@ -38,16 +48,25 @@ var ImageViewer;
         },
         navigation: function(viewer) {
             var btnPrev = document.getElementById('navigation-prev'),
-                btnNext = document.getElementById('navigation-next');
+                btnNext = document.getElementById('navigation-next'),
+                btnPrevFull = document.getElementById('navigation-prev-full'),
+                btnNextFull = document.getElementById('navigation-next-full'),
+                btnFsExit = document.getElementById('navigation-fs-exit'),
+                disClass = 'pure-button-disabled';
             viewer.addEventListener(viewer.EV_FILES_SELECTED, function(e) {
                 var disabled = e.detail.viewer.count <= 1;
-                btnPrev.disabled = btnNext.disabled = disabled;
+                btnPrev.disabled = btnPrevFull.disabled = disabled;
+                btnNext.disabled = btnNextFull.disabled = disabled;
                 if (disabled) {
-                    btnPrev.classList.add('pure-button-disabled');
-                    btnNext.classList.add('pure-button-disabled');
+                    btnPrev.classList.add(disClass);
+                    btnNext.classList.add(disClass);
+                    btnPrevFull.classList.add(disClass);
+                    btnNextFull.classList.add(disClass);
                 } else {
-                    btnPrev.classList.remove('pure-button-disabled');
-                    btnNext.classList.remove('pure-button-disabled');
+                    btnPrev.classList.remove(disClass);
+                    btnNext.classList.remove(disClass);
+                    btnPrevFull.classList.remove(disClass);
+                    btnNextFull.classList.remove(disClass);
                 }
             });
             var onclick = function(e) {
@@ -60,15 +79,29 @@ var ImageViewer;
                     viewer.showPrevious();
                 }
             };
+            var panel = document.getElementById('navigation-panel-wrapper');
+            viewer.addEventListener(viewer.EV_FULLSCREEN_STARTED, function() {
+                panel.className = '';
+            });
+            viewer.addEventListener(viewer.EV_FULLSCREEN_FINISHED, function() {
+                panel.className = 'hidden';
+            });
             btnPrev.addEventListener('click', onclick);
             btnNext.addEventListener('click', onclick);
+            btnPrevFull.addEventListener('click', onclick);
+            btnNextFull.addEventListener('click', onclick);
+            btnFsExit.addEventListener('click', function() {
+                viewer.exitFullscreen();
+            });
         }
     };
 
     /*args: {
         imageholder: "id of element where images will be placed",
         fullscreener: "id of clickable element activating fullscreen mode",
-        files: "id of files input"
+        files: "id of files input",
+        filesPlaceholder: "optional, id of control which overlays input file",
+        plugins: [] // list of plugin names to use
     }
     */
     ImageViewer = function(args) {
@@ -98,6 +131,13 @@ var ImageViewer;
         if (args.fullscreener && fullscreenSupported()) {
             document.getElementById(args.fullscreener).addEventListener(
                 'click', this.startFullscreen.bind(this), false);
+            var fschange = this._onFullscreenChange.bind(this);
+            document.addEventListener('mozfullscreenchange',
+                fschange, false);
+            document.addEventListener('fullscreenchange',
+                fschange, false);
+            document.addEventListener('webkitfullscreenchange',
+                fschange, false);
         }
 
         document.addEventListener('keydown', this._onKeyPress.bind(this),
@@ -124,6 +164,8 @@ var ImageViewer;
     ImageViewer.prototype = {
         EV_IMAGE_SHOWN: 'imageShown',
         EV_FILES_SELECTED: 'filesSelected',
+        EV_FULLSCREEN_STARTED: 'fullscreenStarted',
+        EV_FULLSCREEN_FINISHED: 'fullscreenFinished',
 
         showImage: function(index) {
             if (index < 0 || index > this._files.length) return;
@@ -136,6 +178,10 @@ var ImageViewer;
 
         startFullscreen: function() {
             requestFullscreen(this._element);
+        },
+
+        exitFullscreen: function() {
+            cancelFullscreen();
         },
 
         addEventListener: function(event, callback) {
@@ -151,6 +197,7 @@ var ImageViewer;
             this._files = [];
             this._images = {};
             this._loadingId = null;
+            this._fullscreen = false;
         },
 
         _onFilesSelected: function(evt) {
@@ -254,6 +301,15 @@ var ImageViewer;
                 detail: detail
             });
             document.dispatchEvent(evt);
+        },
+
+        _onFullscreenChange: function() {
+            if (!this._fullscreen) {
+                this._dispatchEvent(this.EV_FULLSCREEN_STARTED);
+            } else {
+                this._dispatchEvent(this.EV_FULLSCREEN_FINISHED);
+            }
+            this._fullscreen = !this._fullscreen;
         }
     };
 })();
