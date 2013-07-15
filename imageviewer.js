@@ -260,11 +260,15 @@ var plugins = {
                 viewer.showPrevious();
             }
         };
+        var fsPlugin = viewer.pn.fullscreen
+        if (!fsPlugin) {
+            return;
+        }
         var panel = document.getElementById('navigation-panel-wrapper');
-        viewer.addEventListener(viewer.EV_FULLSCREEN_STARTED, function() {
+        viewer.addEventListener(fsPlugin.EV_FULLSCREEN_STARTED, function() {
             panel.className = '';
         });
-        viewer.addEventListener(viewer.EV_FULLSCREEN_FINISHED, function() {
+        viewer.addEventListener(fsPlugin.EV_FULLSCREEN_FINISHED, function() {
             panel.className = 'hidden';
         });
         btnPrev.addEventListener('click', onclick);
@@ -272,7 +276,7 @@ var plugins = {
         btnPrevFull.addEventListener('click', onclick);
         btnNextFull.addEventListener('click', onclick);
         btnFsExit.addEventListener('click', function() {
-            viewer.pn.fullscreen.exit();
+            fsPlugin.exit();
         });
     }
 };
@@ -287,7 +291,8 @@ var fullscreenPlugin = function(viewer, args) {
 
     if (this.fullscreenSupported()) {
         this._fullscreen = false;
-        document.getElementById(args.activator).addEventListener(
+        var activator = document.getElementById(args.activator);
+        activator.addEventListener(
             'click', this.start.bind(this), false);
         var fschange = this._onFullscreenChange.bind(this);
         document.addEventListener('mozfullscreenchange',
@@ -298,6 +303,11 @@ var fullscreenPlugin = function(viewer, args) {
             fschange, false);
         document.addEventListener('keydown',
             this._onKeyPress.bind(this), false);
+
+        viewer.addEventListener(viewer.EV_FILES_SELECTED, function(e) {
+            activator.disabled = false;
+            activator.classList.remove('pure-button-disabled');
+        });
     }
 };
 
