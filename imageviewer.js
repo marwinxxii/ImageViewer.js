@@ -48,6 +48,13 @@ var ImageViewer;
                 document.title = 'imageviewer.js - ' + fileName;
             });
         },
+        help: function(viewer) {
+            var element = document.getElementById('help');
+            element.style.display = 'block';
+            viewer.addEventListener(viewer.EV_FILES_SELECTED, function() {
+                element.style.display = 'none';
+            });
+        },
         navigation: function(viewer) {
             var btnPrev = document.getElementById('navigation-prev'),
                 btnNext = document.getElementById('navigation-next'),

@@ -4,7 +4,7 @@ JS_INPUT = imageviewer.js
 JS_OUTPUT = $(BUILT_PREFIX)imageviewer.min.js
 
 CSS_INPUT = main.scss
-CSS_OUTPUT = $(BUILT_PREFIX)main.css
+CSS_OUTPUT = $(BUILT_PREFIX)main.min.css
 
 all: jshint
 
