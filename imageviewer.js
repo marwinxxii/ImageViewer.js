@@ -43,7 +43,9 @@ var ImageViewer;
                 container = document.getElementById('title-container');
             viewer.addEventListener(viewer.EV_IMAGE_SHOWN, function(e) {
                 container.className = '';
-                element.innerHTML = e.detail.file.name;
+                var fileName = e.detail.file.name;
+                element.innerHTML = fileName;
+                document.title = 'imageviewer.js - ' + fileName;
             });
         },
         navigation: function(viewer) {
