@@ -159,8 +159,15 @@ var ImageViewer;
             var p, i;
             for (i = 0; i < args.plugins.length; i++) {
                 p = args.plugins[i];
-                if (p in plugins) {
-                    plugins[p](this);
+                if (typeof(p) === 'string') {
+                    p = plugins[p];
+                    if (!!p) {
+                        plugins[p](this);
+                    }
+                } else {
+                    if (plugins[p.name]) {
+                        plugins[p.name](this, p);
+                    }
                 }
             }
         }
