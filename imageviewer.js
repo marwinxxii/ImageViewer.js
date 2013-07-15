@@ -146,7 +146,7 @@ var ImageViewer;
             false);
 
         this._element.addEventListener('click',
-            this.showNext.bind(this), false);
+            this._onMouseClick.bind(this), false);
 
         if (args.plugins) {
             var p, i;
