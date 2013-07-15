@@ -29,82 +29,6 @@ function cancelFullscreen() {
     }
 }
 
-var plugins = {
-    index: function(viewer) {
-        var element = document.getElementById('index');
-        viewer.addEventListener(viewer.EV_IMAGE_SHOWN, function(e) {
-            element.className = '';
-            element.innerHTML = (e.detail.index + 1) + '/' +
-                e.detail.viewer.count;
-        });
-    },
-    title: function(viewer) {
-        var element = document.getElementById('title'),
-            container = document.getElementById('title-container');
-        viewer.addEventListener(viewer.EV_IMAGE_SHOWN, function(e) {
-            container.className = '';
-            var fileName = e.detail.file.name;
-            element.innerHTML = fileName;
-            document.title = 'imageviewer.js - ' + fileName;
-        });
-    },
-    help: function(viewer) {
-        var element = document.getElementById('help');
-        element.style.display = 'block';
-        viewer.addEventListener(viewer.EV_FILES_SELECTED, function() {
-            element.style.display = 'none';
-        });
-    },
-    navigation: function(viewer) {
-        var btnPrev = document.getElementById('navigation-prev'),
-            btnNext = document.getElementById('navigation-next'),
-            btnPrevFull = document.getElementById('navigation-prev-full'),
-            btnNextFull = document.getElementById('navigation-next-full'),
-            btnFsExit = document.getElementById('navigation-fs-exit'),
-            disClass = 'pure-button-disabled';
-        viewer.addEventListener(viewer.EV_FILES_SELECTED, function(e) {
-            var disabled = e.detail.viewer.count <= 1;
-            btnPrev.disabled = btnPrevFull.disabled = disabled;
-            btnNext.disabled = btnNextFull.disabled = disabled;
-            if (disabled) {
-                btnPrev.classList.add(disClass);
-                btnNext.classList.add(disClass);
-                btnPrevFull.classList.add(disClass);
-                btnNextFull.classList.add(disClass);
-            } else {
-                btnPrev.classList.remove(disClass);
-                btnNext.classList.remove(disClass);
-                btnPrevFull.classList.remove(disClass);
-                btnNextFull.classList.remove(disClass);
-            }
-        });
-        var onclick = function(e) {
-            if (e.target.disabled !== false) {
-                return;
-            }
-            if (e.target.id === 'navigation-next') {
-                viewer.showNext();
-            } else {
-                viewer.showPrevious();
-            }
-        };
-        var panel = document.getElementById('navigation-panel-wrapper');
-        viewer.addEventListener(viewer.EV_FULLSCREEN_STARTED, function() {
-            panel.className = '';
-        });
-        viewer.addEventListener(viewer.EV_FULLSCREEN_FINISHED, function() {
-            panel.className = 'hidden';
-        });
-        btnPrev.addEventListener('click', onclick);
-        btnNext.addEventListener('click', onclick);
-        btnPrevFull.addEventListener('click', onclick);
-        btnNextFull.addEventListener('click', onclick);
-        btnFsExit.addEventListener('click', function() {
-            viewer.exitFullscreen();
-        });
-    }
-};
-
 /*args: {
     imageholder: "id of element where images will be placed",
     fullscreener: "id of clickable element activating fullscreen mode",
@@ -160,13 +84,13 @@ ImageViewer = function(args) {
         for (i = 0; i < args.plugins.length; i++) {
             p = args.plugins[i];
             if (typeof(p) === 'string') {
-                p = plugins[p];
+                p = this.plugins[p];
                 if (!!p) {
-                    plugins[p](this);
+                    this.plugins[p](this);
                 }
             } else {
-                if (plugins[p.name]) {
-                    plugins[p.name](this, p);
+                if (this.plugins[p.name]) {
+                    this.plugins[p.name](this, p);
                 }
             }
         }
@@ -182,6 +106,8 @@ ImageViewer.prototype = {
     EV_FILES_SELECTED: 'filesSelected',
     EV_FULLSCREEN_STARTED: 'fullscreenStarted',
     EV_FULLSCREEN_FINISHED: 'fullscreenFinished',
+
+    plugins: null,
 
     showImage: function(index) {
         if (index < 0 || index > this._files.length) return;
@@ -326,6 +252,82 @@ ImageViewer.prototype = {
             this._dispatchEvent(this.EV_FULLSCREEN_FINISHED);
         }
         this._fullscreen = !this._fullscreen;
+    }
+};
+
+ImageViewer.plugins = {
+    index: function(viewer) {
+        var element = document.getElementById('index');
+        viewer.addEventListener(viewer.EV_IMAGE_SHOWN, function(e) {
+            element.className = '';
+            element.innerHTML = (e.detail.index + 1) + '/' +
+                e.detail.viewer.count;
+        });
+    },
+    title: function(viewer) {
+        var element = document.getElementById('title'),
+            container = document.getElementById('title-container');
+        viewer.addEventListener(viewer.EV_IMAGE_SHOWN, function(e) {
+            container.className = '';
+            var fileName = e.detail.file.name;
+            element.innerHTML = fileName;
+            document.title = 'imageviewer.js - ' + fileName;
+        });
+    },
+    help: function(viewer) {
+        var element = document.getElementById('help');
+        element.style.display = 'block';
+        viewer.addEventListener(viewer.EV_FILES_SELECTED, function() {
+            element.style.display = 'none';
+        });
+    },
+    navigation: function(viewer) {
+        var btnPrev = document.getElementById('navigation-prev'),
+            btnNext = document.getElementById('navigation-next'),
+            btnPrevFull = document.getElementById('navigation-prev-full'),
+            btnNextFull = document.getElementById('navigation-next-full'),
+            btnFsExit = document.getElementById('navigation-fs-exit'),
+            disClass = 'pure-button-disabled';
+        viewer.addEventListener(viewer.EV_FILES_SELECTED, function(e) {
+            var disabled = e.detail.viewer.count <= 1;
+            btnPrev.disabled = btnPrevFull.disabled = disabled;
+            btnNext.disabled = btnNextFull.disabled = disabled;
+            if (disabled) {
+                btnPrev.classList.add(disClass);
+                btnNext.classList.add(disClass);
+                btnPrevFull.classList.add(disClass);
+                btnNextFull.classList.add(disClass);
+            } else {
+                btnPrev.classList.remove(disClass);
+                btnNext.classList.remove(disClass);
+                btnPrevFull.classList.remove(disClass);
+                btnNextFull.classList.remove(disClass);
+            }
+        });
+        var onclick = function(e) {
+            if (e.target.disabled !== false) {
+                return;
+            }
+            if (e.target.id === 'navigation-next') {
+                viewer.showNext();
+            } else {
+                viewer.showPrevious();
+            }
+        };
+        var panel = document.getElementById('navigation-panel-wrapper');
+        viewer.addEventListener(viewer.EV_FULLSCREEN_STARTED, function() {
+            panel.className = '';
+        });
+        viewer.addEventListener(viewer.EV_FULLSCREEN_FINISHED, function() {
+            panel.className = 'hidden';
+        });
+        btnPrev.addEventListener('click', onclick);
+        btnNext.addEventListener('click', onclick);
+        btnPrevFull.addEventListener('click', onclick);
+        btnNextFull.addEventListener('click', onclick);
+        btnFsExit.addEventListener('click', function() {
+            viewer.exitFullscreen();
+        });
     }
 };
 })();
