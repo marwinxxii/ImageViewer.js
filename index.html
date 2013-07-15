@@ -15,7 +15,9 @@
                 title="Select images to view"><i
                 class="icon-folder-open"></i><input id="files" type="file" multiple accept="image/*"
                 title="Select images to view"></button>
-            <button class="pure-button" id="fullscreen"
+            <button disabled
+                class="pure-button pure-button-disabled"
+                id="fullscreen"
                 title="Fullscreen mode"><i
                 class="icon-fullscreen"></i></button>
             <button class="pure-button pure-button-disabled"
@@ -65,10 +67,10 @@
         <script>
             var imageViewer = new ImageViewer({
                 imageholder: 'imageviewer',
-                fullscreener: 'fullscreen',
                 files: 'files',
                 filesPlaceholder: 'files-holder',
-                plugins: ['index', 'title', 'navigation', 'help']
+                plugins: ['index', 'title', 'navigation', 'help',
+                    {name: 'fullscreen', activator: 'fullscreen'}]
             });
         </script>
     </body>

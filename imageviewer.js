@@ -3,35 +3,8 @@ var ImageViewer;
 (function () {
 'use strict';
 
-function fullscreenSupported() {
-    return document.documentElement.requestFullscreen ||
-        document.documentElement.mozRequestFullScreen ||
-        document.documentElement.webkitRequestFullscreen;
-}
-
-function requestFullscreen(elem) {
-    if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-    } else if (elem.mozRequestFullScreen) {
-        elem.mozRequestFullScreen();
-    } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-    }
-}
-
-function cancelFullscreen() {
-    if(document.cancelFullscreen) {
-        document.cancelFullscreen();
-    } else if(document.mozCancelFullScreen) {
-        document.mozCancelFullScreen();
-    } else if(document.webkitCancelFullScreen) {
-        document.webkitCancelFullScreen();
-    }
-}
-
 /*args: {
     imageholder: "id of element where images will be placed",
-    fullscreener: "id of clickable element activating fullscreen mode",
     files: "id of files input",
     filesPlaceholder: "optional, id of control which overlays input file",
     plugins: [] // list of plugin names to use
@@ -43,6 +16,10 @@ ImageViewer = function(args) {
 
     Object.defineProperty(this, 'count', {
         get: function() { return this._files.length; }
+    });
+
+    Object.defineProperty(this, 'element', {
+        get: function() { return this._element; }
     });
 
     this._reader = new FileReader();
@@ -61,23 +38,13 @@ ImageViewer = function(args) {
             false);
     }
 
-    if (args.fullscreener && fullscreenSupported()) {
-        document.getElementById(args.fullscreener).addEventListener(
-            'click', this.startFullscreen.bind(this), false);
-        var fschange = this._onFullscreenChange.bind(this);
-        document.addEventListener('mozfullscreenchange',
-            fschange, false);
-        document.addEventListener('fullscreenchange',
-            fschange, false);
-        document.addEventListener('webkitfullscreenchange',
-            fschange, false);
-    }
-
     document.addEventListener('keydown', this._onKeyPress.bind(this),
         false);
 
     this._element.addEventListener('click',
         this._onMouseClick.bind(this), false);
+
+    this.pn = {};
 
     if (args.plugins) {
         var p, i;
@@ -86,11 +53,11 @@ ImageViewer = function(args) {
             if (typeof(p) === 'string') {
                 p = this.plugins[p];
                 if (!!p) {
-                    this.plugins[p](this);
+                    this.pn[p] = this.plugins[p](this);
                 }
             } else {
                 if (this.plugins[p.name]) {
-                    this.plugins[p.name](this, p);
+                    this.pn[p.name] = this.plugins[p.name](this, p);
                 }
             }
         }
@@ -99,15 +66,13 @@ ImageViewer = function(args) {
 
 var KEY_SPACE = 32, KEY_RIGHT = 39, KEY_LEFT = 37,
     KEY_O = 79, KEY_F = 70;
-var EV_PREFIX = 'imageviewer.';
 
 ImageViewer.prototype = {
     EV_IMAGE_SHOWN: 'imageShown',
     EV_FILES_SELECTED: 'filesSelected',
-    EV_FULLSCREEN_STARTED: 'fullscreenStarted',
-    EV_FULLSCREEN_FINISHED: 'fullscreenFinished',
+    EV_PREFIX: 'imageviewer.',
 
-    plugins: null,
+    plugins: {},
 
     showImage: function(index) {
         if (index < 0 || index > this._files.length) return;
@@ -118,16 +83,8 @@ ImageViewer.prototype = {
         }
     },
 
-    startFullscreen: function() {
-        requestFullscreen(this._element);
-    },
-
-    exitFullscreen: function() {
-        cancelFullscreen();
-    },
-
     addEventListener: function(event, callback) {
-        document.addEventListener(EV_PREFIX + event, callback);
+        document.addEventListener(this.EV_PREFIX + event, callback);
     },
 
     openFileDialog: function() {
@@ -139,7 +96,6 @@ ImageViewer.prototype = {
         this._files = [];
         this._images = {};
         this._loadingId = null;
-        this._fullscreen = false;
     },
 
     _onFilesSelected: function(evt) {
@@ -190,9 +146,6 @@ ImageViewer.prototype = {
             case KEY_O:
                 this.openFileDialog();
                 break;
-            case KEY_F:
-                this.startFullscreen();
-                break;
         }
     },
 
@@ -236,22 +189,13 @@ ImageViewer.prototype = {
             detail = {};
         }
         detail.viewer = this;
-        name = EV_PREFIX + name;
+        name = this.EV_PREFIX + name;
         var evt = new CustomEvent(name, {
             bubbles: false,
             cancelable: false,
             detail: detail
         });
         document.dispatchEvent(evt);
-    },
-
-    _onFullscreenChange: function() {
-        if (!this._fullscreen) {
-            this._dispatchEvent(this.EV_FULLSCREEN_STARTED);
-        } else {
-            this._dispatchEvent(this.EV_FULLSCREEN_FINISHED);
-        }
-        this._fullscreen = !this._fullscreen;
     }
 };
 
@@ -326,8 +270,84 @@ ImageViewer.plugins = {
         btnPrevFull.addEventListener('click', onclick);
         btnNextFull.addEventListener('click', onclick);
         btnFsExit.addEventListener('click', function() {
-            viewer.exitFullscreen();
+            viewer.pn.fullscreen.exit();
         });
     }
 };
+
+/*
+args = {
+    fullscreener: "id of clickable element activating fullscreen mode"
+}
+*/
+var fullscreenPlugin = function(viewer, args) {
+    this.viewer = viewer;
+
+    if (this.fullscreenSupported()) {
+        this._fullscreen = false;
+        document.getElementById(args.activator).addEventListener(
+            'click', this.start.bind(this), false);
+        var fschange = this._onFullscreenChange.bind(this);
+        document.addEventListener('mozfullscreenchange',
+            fschange, false);
+        document.addEventListener('fullscreenchange',
+            fschange, false);
+        document.addEventListener('webkitfullscreenchange',
+            fschange, false);
+        document.addEventListener('keydown',
+            this._onKeyPress.bind(this), false);
+    }
+};
+
+fullscreenPlugin.prototype = {
+    EV_FULLSCREEN_STARTED: 'fullscreenStarted',
+    EV_FULLSCREEN_FINISHED: 'fullscreenFinished',
+
+    fullscreenSupported: function() {
+        return document.documentElement.requestFullscreen ||
+            document.documentElement.mozRequestFullScreen ||
+            document.documentElement.webkitRequestFullscreen;
+    },
+
+    start: function() {
+        this._requestFullscreen(this.viewer.element);
+    },
+
+    exit: function() {
+        if(document.cancelFullscreen) {
+            document.cancelFullscreen();
+        } else if(document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if(document.webkitCancelFullScreen) {
+            document.webkitCancelFullScreen();
+        }
+    },
+
+    _requestFullscreen: function(elem) {
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+            elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+        }
+    },
+
+    _onFullscreenChange: function() {
+        if (!this._fullscreen) {
+            this.viewer._dispatchEvent(this.EV_FULLSCREEN_STARTED);
+        } else {
+            this.viewer._dispatchEvent(this.EV_FULLSCREEN_FINISHED);
+        }
+        this._fullscreen = !this._fullscreen;
+    },
+
+    _onKeyPress: function(e) {
+        if (e.keyCode === KEY_F && this.viewer.count > 1) {
+            this.start();
+        }
+    }
+};
+
+ImageViewer.plugins.fullscreen = fullscreenPlugin;
 })();
