@@ -47,17 +47,19 @@ ImageViewer = function(args) {
     this.pn = {};
 
     if (args.plugins) {
-        var p, i;
+        var p, i, plugin;
         for (i = 0; i < args.plugins.length; i++) {
             p = args.plugins[i];
             if (typeof(p) === 'string') {
-                p = this.plugins[p];
-                if (!!p) {
-                    this.pn[p] = this.plugins[p](this);
+                plugin = this.plugins[p];
+                if (!!plugin) {
+                    this.pn[p] = p;
+                    plugin(this);
                 }
             } else {
-                if (this.plugins[p.name]) {
-                    this.pn[p.name] = this.plugins[p.name](this, p);
+                plugin = this.plugins[p.name];
+                if (!!plugin) {
+                    this.pn[p.name] = new plugin(this, p);
                 }
             }
         }
@@ -72,7 +74,7 @@ ImageViewer.prototype = {
     EV_FILES_SELECTED: 'filesSelected',
     EV_PREFIX: 'imageviewer.',
 
-    plugins: {},
+    plugins: null,
 
     showImage: function(index) {
         if (index < 0 || index > this._files.length) return;
@@ -199,7 +201,7 @@ ImageViewer.prototype = {
     }
 };
 
-ImageViewer.plugins = {
+var plugins = {
     index: function(viewer) {
         var element = document.getElementById('index');
         viewer.addEventListener(viewer.EV_IMAGE_SHOWN, function(e) {
@@ -349,5 +351,6 @@ fullscreenPlugin.prototype = {
     }
 };
 
-ImageViewer.plugins.fullscreen = fullscreenPlugin;
+plugins.fullscreen = fullscreenPlugin;
+ImageViewer.prototype.plugins = plugins;
 })();
