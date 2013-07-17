@@ -100,9 +100,8 @@ img {
 #navigation-panel {
     background-color: $panel_background;
     border-radius: 5px;
-    position: fixed;
-    bottom: 0;
     padding: 5px;
+    display: inline-block;
 }
 
 #help {
