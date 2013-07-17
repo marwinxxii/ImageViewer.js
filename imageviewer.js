@@ -93,6 +93,19 @@ ImageViewer.prototype = {
         this._filesElem.click();
     },
 
+    showNext: function() {
+        this.showImage((this._index + 1) % this._files.length);
+    },
+
+    showPrevious: function() {
+        var index;
+        if (this._index === 0)
+            index = this._files.length - 1;
+        else
+            index = this._index - 1;
+        this.showImage(index);
+    },
+
     _setStartValues: function() {
         this._index = 0;
         this._files = [];
@@ -154,19 +167,6 @@ ImageViewer.prototype = {
     _onMouseClick: function() {
         if (this._files.length < 1) return;
         this.showNext();
-    },
-
-    showNext: function() {
-        this.showImage((this._index + 1) % this._files.length);
-    },
-
-    showPrevious: function() {
-        var index;
-        if (this._index === 0)
-            index = this._files.length - 1;
-        else
-            index = this._index - 1;
-        this.showImage(index);
     },
 
     _loadImage: function(index) {
@@ -249,24 +249,24 @@ var plugins = {
         viewer.addEventListener(viewer.EV_FILES_SELECTED, function(e) {
             disable(e.detail.viewer.count <= 1, btnPrev, btnNext);
         });
-        var onclick = function(e) {
-            if (e.target.disabled !== false) {
-                return;
-            }
-            if (e.target.id === 'navigation-next') {
+        var showNext = function(e) {
+            if (!e.target.disabled) {
                 viewer.showNext();
-            } else {
+            }
+        };
+        var showPrevious = function(e) {
+            if (!e.target.disabled) {
                 viewer.showPrevious();
             }
         };
-        btnPrev.addEventListener('click', onclick);
-        btnNext.addEventListener('click', onclick);
+        btnPrev.addEventListener('click', showPrevious);
+        btnNext.addEventListener('click', showNext);
         var fsPlugin = viewer.pn.fullscreen;
         if (!fsPlugin) {
             return;
         }
-        btnPrevFull.addEventListener('click', onclick);
-        btnNextFull.addEventListener('click', onclick);
+        btnPrevFull.addEventListener('click', showPrevious);
+        btnNextFull.addEventListener('click', showNext);
         btnFsExit.addEventListener('click', function() {
             fsPlugin.exit();
         });
