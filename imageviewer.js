@@ -7,7 +7,7 @@ var ImageViewer;
     imageholder: "id of element where images will be placed",
     files: "id of files input",
     filesPlaceholder: "optional, id of control which overlays input file",
-    plugins: [] // list of plugin names to use
+    plugins: [] // list of plugin (names or objects with params) to use
 }
 */
 ImageViewer = function(args) {
@@ -201,11 +201,24 @@ ImageViewer.prototype = {
     }
 };
 
+function disable(disabled) {
+    for (var i = 1, e; i < arguments.length; i++) {
+        e = arguments[i];
+        if (disabled === true) {
+            e.disabled = true;
+            e.classList.add('pure-button-disabled');
+        } else {
+            e.disabled = false;
+            e.classList.remove('pure-button-disabled');
+        }
+    }
+}
+
 var plugins = {
     index: function(viewer) {
         var element = document.getElementById('index');
         viewer.addEventListener(viewer.EV_IMAGE_SHOWN, function(e) {
-            element.className = '';
+            element.classList.remove('hidden');
             element.innerHTML = (e.detail.index + 1) + '/' +
                 e.detail.viewer.count;
         });
@@ -214,7 +227,7 @@ var plugins = {
         var element = document.getElementById('title'),
             container = document.getElementById('title-container');
         viewer.addEventListener(viewer.EV_IMAGE_SHOWN, function(e) {
-            container.className = '';
+            container.classList.remove('hidden');
             var fileName = e.detail.file.name;
             element.innerHTML = fileName;
             document.title = 'imageviewer.js - ' + fileName;
@@ -232,23 +245,9 @@ var plugins = {
             btnNext = document.getElementById('navigation-next'),
             btnPrevFull = document.getElementById('navigation-prev-full'),
             btnNextFull = document.getElementById('navigation-next-full'),
-            btnFsExit = document.getElementById('navigation-fs-exit'),
-            disClass = 'pure-button-disabled';
+            btnFsExit = document.getElementById('navigation-fs-exit');
         viewer.addEventListener(viewer.EV_FILES_SELECTED, function(e) {
-            var disabled = e.detail.viewer.count <= 1;
-            btnPrev.disabled = btnPrevFull.disabled = disabled;
-            btnNext.disabled = btnNextFull.disabled = disabled;
-            if (disabled) {
-                btnPrev.classList.add(disClass);
-                btnNext.classList.add(disClass);
-                btnPrevFull.classList.add(disClass);
-                btnNextFull.classList.add(disClass);
-            } else {
-                btnPrev.classList.remove(disClass);
-                btnNext.classList.remove(disClass);
-                btnPrevFull.classList.remove(disClass);
-                btnNextFull.classList.remove(disClass);
-            }
+            disable(e.detail.viewer.count <= 1, btnPrev, btnNext);
         });
         var onclick = function(e) {
             if (e.target.disabled !== false) {
@@ -260,19 +259,12 @@ var plugins = {
                 viewer.showPrevious();
             }
         };
-        var fsPlugin = viewer.pn.fullscreen
+        btnPrev.addEventListener('click', onclick);
+        btnNext.addEventListener('click', onclick);
+        var fsPlugin = viewer.pn.fullscreen;
         if (!fsPlugin) {
             return;
         }
-        var panel = document.getElementById('navigation-panel-wrapper');
-        viewer.addEventListener(fsPlugin.EV_FULLSCREEN_STARTED, function() {
-            panel.className = '';
-        });
-        viewer.addEventListener(fsPlugin.EV_FULLSCREEN_FINISHED, function() {
-            panel.className = 'hidden';
-        });
-        btnPrev.addEventListener('click', onclick);
-        btnNext.addEventListener('click', onclick);
         btnPrevFull.addEventListener('click', onclick);
         btnNextFull.addEventListener('click', onclick);
         btnFsExit.addEventListener('click', function() {
@@ -283,28 +275,20 @@ var plugins = {
 
 /*
 args = {
-    fullscreener: "id of clickable element activating fullscreen mode"
+    activator: "id of clickable element activating fullscreen mode"
 }
 */
 var fullscreenPlugin = function(viewer, args) {
     this.viewer = viewer;
 
     if (this.fullscreenSupported()) {
-        this._fullscreen = false;
         var activator = document.getElementById(args.activator);
         activator.addEventListener(
             'click', this.start.bind(this), false);
-        var fschange = this._onFullscreenChange.bind(this);
-        document.addEventListener('mozfullscreenchange',
-            fschange, false);
-        document.addEventListener('fullscreenchange',
-            fschange, false);
-        document.addEventListener('webkitfullscreenchange',
-            fschange, false);
         document.addEventListener('keydown',
             this._onKeyPress.bind(this), false);
 
-        viewer.addEventListener(viewer.EV_FILES_SELECTED, function(e) {
+        viewer.addEventListener(viewer.EV_FILES_SELECTED, function() {
             activator.disabled = false;
             activator.classList.remove('pure-button-disabled');
         });
@@ -312,8 +296,6 @@ var fullscreenPlugin = function(viewer, args) {
 };
 
 fullscreenPlugin.prototype = {
-    EV_FULLSCREEN_STARTED: 'fullscreenStarted',
-    EV_FULLSCREEN_FINISHED: 'fullscreenFinished',
 
     fullscreenSupported: function() {
         return document.documentElement.requestFullscreen ||
@@ -343,15 +325,6 @@ fullscreenPlugin.prototype = {
         } else if (elem.webkitRequestFullscreen) {
             elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
         }
-    },
-
-    _onFullscreenChange: function() {
-        if (!this._fullscreen) {
-            this.viewer._dispatchEvent(this.EV_FULLSCREEN_STARTED);
-        } else {
-            this.viewer._dispatchEvent(this.EV_FULLSCREEN_FINISHED);
-        }
-        this._fullscreen = !this._fullscreen;
     },
 
     _onKeyPress: function(e) {

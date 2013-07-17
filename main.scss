@@ -41,13 +41,29 @@ img {
 #imageviewer:-webkit-full-screen { @include fs-viewer; }
 #imageviewer:-moz-full-screen { @include fs-viewer; }
 
-.hidden {
+@mixin hidden {
     display: none;
+}
+
+@mixin visible($important) {
+    display: block $important;
+}
+
+.hidden {
+    @include hidden;
 }
 
 .pointer {
     cursor: pointer;
 }
+
+:fullscreen .fs-hidden { @include hidden; }
+:-webkit-full-screen .fs-hidden { @include hidden; }
+:-moz-full-screen .fs-hidden { @include hidden; }
+
+:fullscreen .fs-visible { @include visible(!important); }
+:-webkit-full-screen .fs-visible { @include visible(!important); }
+:-moz-full-screen .fs-visible { @include visible(!important); }
 
 #index {
     @extend .widget;
@@ -80,14 +96,6 @@ img {
     @extend .widget;
     font-family: monospace;
 }
-
-@mixin fs-title {
-    display: none;
-}
-
-:fullscreen #title-container { @include fs-title; }
-:-webkit-full-screen #title-container { @include fs-title; }
-:-moz-full-screen #title-container { @include fs-title; }
 
 #navigation-panel-wrapper {
     width: 100%;
