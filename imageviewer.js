@@ -149,13 +149,14 @@ ImageViewer.prototype = {
     },
 
     _onKeyPress: function(e) {
-        if (this._files.length < 1) return;
         switch (e.keyCode) {
             case KEY_SPACE:
             case KEY_RIGHT:
+                if (this._files.length < 1) return;
                 this.showNext();
                 break;
             case KEY_LEFT:
+                if (this._files.length < 1) return;
                 this.showPrevious();
                 break;
             case KEY_O:
