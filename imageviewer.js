@@ -1,3 +1,20 @@
+/*
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+Alexey Agapitov, 2013
+*/
+
 var ImageViewer;
 
 (function () {
@@ -152,11 +169,11 @@ ImageViewer.prototype = {
         switch (e.keyCode) {
             case KEY_SPACE:
             case KEY_RIGHT:
-                if (this._files.length < 1) return;
+                if (this._files.length <= 1) return;
                 this.showNext();
                 break;
             case KEY_LEFT:
-                if (this._files.length < 1) return;
+                if (this._files.length <= 1) return;
                 this.showPrevious();
                 break;
             case KEY_O:
@@ -166,7 +183,7 @@ ImageViewer.prototype = {
     },
 
     _onMouseClick: function() {
-        if (this._files.length < 1) return;
+        if (this._files.length <= 1) return;
         this.showNext();
     },
 
@@ -252,11 +269,13 @@ var plugins = {
         });
         var showNext = function(e) {
             if (!e.target.disabled) {
+                e.stopPropagation();
                 viewer.showNext();
             }
         };
         var showPrevious = function(e) {
             if (!e.target.disabled) {
+                e.stopPropagation();
                 viewer.showPrevious();
             }
         };
