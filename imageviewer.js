@@ -152,11 +152,11 @@ ImageViewer.prototype = {
         switch (e.keyCode) {
             case KEY_SPACE:
             case KEY_RIGHT:
-                if (this._files.length < 1) return;
+                if (this._files.length <= 1) return;
                 this.showNext();
                 break;
             case KEY_LEFT:
-                if (this._files.length < 1) return;
+                if (this._files.length <= 1) return;
                 this.showPrevious();
                 break;
             case KEY_O:
@@ -165,7 +165,8 @@ ImageViewer.prototype = {
         }
     },
 
-    _onMouseClick: function() {
+    _onMouseClick: function(e) {
+        console.log(e);
         if (this._files.length < 1) return;
         this.showNext();
     },
@@ -252,11 +253,13 @@ var plugins = {
         });
         var showNext = function(e) {
             if (!e.target.disabled) {
+                e.stopPropagation();
                 viewer.showNext();
             }
         };
         var showPrevious = function(e) {
             if (!e.target.disabled) {
+                e.stopPropagation();
                 viewer.showPrevious();
             }
         };
