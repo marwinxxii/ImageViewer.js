@@ -106,6 +106,14 @@ ImageViewer.prototype = {
         this.showImage(index);
     },
 
+    getCurrent: function() {
+        return {
+            index: this._index,
+            image: this._images[this._index],
+            file: this._files[this._index]
+        };
+    },
+
     _setStartValues: function() {
         this._index = 0;
         this._files = [];
@@ -133,6 +141,7 @@ ImageViewer.prototype = {
             this._files.push(file);
         }
         this._element.className = 'pointer';
+        //this._element.style.height = (document.documentElement.clientHeight - 16) + 'px';
 
         this._dispatchEvent(this.EV_FILES_SELECTED);
         this.showImage(0);
@@ -141,6 +150,8 @@ ImageViewer.prototype = {
     _onImageRead: function(e) {
         var img = document.createElement('img');
         img.src = e.target.result;
+        //this._element.style.backgroundImage = 'url(' +
+        //    e.target.result + ')';
         img.className = 'hidden';
         this._element.appendChild(img);
         this._images[this._loadingId] = img;
@@ -166,7 +177,6 @@ ImageViewer.prototype = {
     },
 
     _onMouseClick: function(e) {
-        console.log(e);
         if (this._files.length < 1) return;
         this.showNext();
     },
@@ -184,7 +194,8 @@ ImageViewer.prototype = {
         this._images[this._index].className = '';
         this._dispatchEvent(this.EV_IMAGE_SHOWN, {
             index: index,
-            file: this._files[index]
+            file: this._files[index],
+            image: this._images[index]
         });
     },
 
@@ -283,20 +294,35 @@ args = {
 }
 */
 var fullscreenPlugin = function(viewer, args) {
-    this.viewer = viewer;
-
-    if (this.fullscreenSupported()) {
-        var activator = document.getElementById(args.activator);
-        activator.addEventListener(
-            'click', this.start.bind(this), false);
-        document.addEventListener('keydown',
-            this._onKeyPress.bind(this), false);
-
-        viewer.addEventListener(viewer.EV_FILES_SELECTED, function() {
-            activator.disabled = false;
-            activator.classList.remove('pure-button-disabled');
-        });
+    if (!this.fullscreenSupported()) {
+        return;
     }
+    this.viewer = viewer;
+    this._cache = {};
+    this._fullscreenEnabled = false;
+
+    var activator = document.getElementById(args.activator);
+    activator.addEventListener(
+        'click', this.start.bind(this), false);
+    document.addEventListener('keydown',
+        this._onKeyPress.bind(this), false);
+
+    viewer.addEventListener(viewer.EV_FILES_SELECTED, function() {
+        activator.disabled = false;
+        activator.classList.remove('pure-button-disabled');
+    });
+
+    document.addEventListener('webkitfullscreenchange',
+        this._onFullscreenChange.bind(this));
+
+    document.addEventListener('mozfullscreenchange',
+        this._onFullscreenChange.bind(this));
+
+    document.addEventListener('fullscreenchange',
+        this._onFullscreenChange.bind(this));
+
+    viewer.addEventListener(viewer.EV_IMAGE_SHOWN,
+        this._onImageShown.bind(this));
 };
 
 fullscreenPlugin.prototype = {
@@ -319,6 +345,7 @@ fullscreenPlugin.prototype = {
         } else if(document.webkitCancelFullScreen) {
             document.webkitCancelFullScreen();
         }
+        this.viewer.element.style.backgroundImage = '';
     },
 
     _requestFullscreen: function(elem) {
@@ -335,6 +362,32 @@ fullscreenPlugin.prototype = {
         if (e.keyCode === KEY_F && this.viewer.count > 1) {
             this.start();
         }
+    },
+
+    _createBackground: function(item) {
+        var index = item.index,
+            back = this._cache[index];
+        if (back === undefined) {
+            this._cache[index] = back = 'url(' + item.image.src + ')';
+        }
+        return back;
+    },
+
+    _onImageShown: function(e) {
+        var back = '';
+        if (this._fullscreenEnabled) {
+            back = this._createBackground(e.detail);
+        }
+        this.viewer.element.style.backgroundImage = back;
+    },
+
+    _onFullscreenChange: function() {
+        this._fullscreenEnabled = !this._fullscreenEnabled;
+        var back = '';
+        if (this._fullscreenEnabled) {
+            back = this._createBackground(this.viewer.getCurrent());
+        }
+        this.viewer.element.style.backgroundImage = back;
     }
 };
 
